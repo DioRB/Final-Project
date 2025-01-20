@@ -7,8 +7,8 @@ ruta_base = os.path.dirname(__file__)  # Directorio del script actual
 ruta_imagen = os.path.join(ruta_base, "pong.png")  # Construye la ruta completa
 ruta_imagen_raqueta = os.path.join(ruta_base, "raqueta.png")  # Construye la ruta completa
 
-winHori = 800
-winVert = 600
+winHori = 800 #Tamaño de la ventana en horizontal
+winVert = 600 #Tamaño de la ventana en vertical
 fps = 75
 white = (255, 255, 255)
 black = (0, 0, 0)
