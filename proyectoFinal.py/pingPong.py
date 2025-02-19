@@ -1,10 +1,12 @@
+#Librerias
 import pygame
 from pygame.locals import *
 import pygame_menu as pm
 import random
 import os
 
-ruta_base = os.path.dirname(__file__) 
+
+ruta_base = os.path.dirname(__file__)  #Encontrar las imagenes
 
 #Colores de la pelota
 rutaImagenPongNaranja = os.path.join(ruta_base, "pongNaranja.png")
@@ -16,7 +18,7 @@ rutaImagenPongAmarillo = os.path.join(ruta_base, "pongAmarillo.png")
 rutaImagenPongMorado = os.path.join(ruta_base, "pongMorado.png")
 pong=rutaImagenPongNaranja
 
-
+#Colores de las raquetas
 rutaImagenRaquetaNegra = os.path.join(ruta_base, "raquetaNegra.png")
 rutaImagenRaquetaAzul = os.path.join(ruta_base, "raquetaAzul.png")
 rutaImagenRaquetaNaranja = os.path.join(ruta_base, "raquetaNaranja.png")
@@ -34,8 +36,9 @@ fps = 75
 white = (255, 255, 255)
 black = (0, 0, 0)
 
+#Clase para las funciones de la pelota 
 class pelotaP:
-    def __init__(self, ficheroImagen):
+    def __init__(self, ficheroImagen): #Función de inicio de juego
         self.imagen = pygame.image.load(pong).convert_alpha()
         self.ancho, self.alto = self.imagen.get_size()
         self.x = winHori / 2 - self.ancho / 2
@@ -45,6 +48,7 @@ class pelotaP:
         self.puntuacion = 0
         self.puntuacion_maquina = 0
 
+    #Función para el cambio de color de la pelota
     def cambiar_color(self, color):
         global pong
         if color == "Naranja":
@@ -63,16 +67,19 @@ class pelotaP:
             pong = rutaImagenPongMorado
         self.imagen = pygame.image.load(pong).convert_alpha()
 
+    #Movimiento de la pelota
     def movimiento(self):
         self.x += self.dir_x
         self.y += self.dir_y
 
+    #Reposición de la pelota al anotar
     def reiniciar(self):
         self.x = winHori / 2 - self.ancho / 2
         self.y = winVert / 2 - self.alto / 2
         self.dir_x = random.choice([-5, 5])
         self.dir_y = random.choice([-5, 5])
 
+    #Rebote de la pelota
     def rebotar(self):
         if self.x <= -self.ancho:
             self.reiniciar()
@@ -83,7 +90,7 @@ class pelotaP:
         if self.y <= 0 or self.y + self.alto >= winVert:
             self.dir_y = -self.dir_y
 
-
+#Clase para las funciones de la raqueta
 class raqueta:
     def __init__(self):
         self.imagen = pygame.image.load(raquetaB).convert_alpha()
@@ -92,6 +99,7 @@ class raqueta:
         self.y = winVert / 2 - self.alto / 2
         self.dir_y = 0
 
+    #Movimientos y limitaciones para la raqueta
     def movimiento(self):
         self.y += self.dir_y
         if self.y <= 0:
@@ -99,8 +107,8 @@ class raqueta:
         if self.y + self.alto >= winVert:
             self.y = winVert - self.alto
 
-    def movimiento_maquina(self, pelota,dificultad_actual):
-        
+    #Movimiento automatico de la raqueta de la maquina según dificultad
+    def movimiento_maquina(self, pelota,dificultad_actual):        
         if self.y > pelota.y:
             self.dir_y = -dificultad_actual["velocidad"]
         elif self.y < pelota.y:
@@ -109,12 +117,13 @@ class raqueta:
             self.dir_y = 0
         self.y += self.dir_y
 
+    #Modificación de la dirección y posición de la pelota al golpe con la raqueta
     def golpear(self, pelota):
         if (
-            pelota.dir_x < 0 and  # La pelota se está moviendo hacia la raqueta
-            pelota.x + pelota.dir_x < self.x + self.ancho and  # Cruza el lado derecho de la raqueta
-            pelota.x + pelota.ancho > self.x and  # Está dentro del rango horizontal de la raqueta
-            pelota.y + pelota.alto > self.y and  # Está dentro del rango vertical de la raqueta
+            pelota.dir_x < 0 and 
+            pelota.x + pelota.dir_x < self.x + self.ancho and  
+            pelota.x + pelota.ancho > self.x and  
+            pelota.y + pelota.alto > self.y and  
             pelota.y < self.y + self.alto
         ):
             pelota.dir_x = -pelota.dir_x
@@ -122,12 +131,13 @@ class raqueta:
             pelota.dir_y*=1.1
             pelota.dir_x*=1.1
 
+    #Modificación de la dirección y posición de la pelota al golpe con la raqueta de la maquina
     def golpear_maquina(self, pelota):
         if (
-            pelota.dir_x > 0 and  # La pelota se está moviendo hacia la raqueta
-            pelota.x + pelota.dir_x + pelota.ancho > self.x and  # Cruza el lado izquierdo de la raqueta
-            pelota.x < self.x + self.ancho and  # Está dentro del rango horizontal de la raqueta
-            pelota.y + pelota.alto > self.y and  # Está dentro del rango vertical de la raqueta
+            pelota.dir_x > 0 and 
+            pelota.x + pelota.dir_x + pelota.ancho > self.x and
+            pelota.x < self.x + self.ancho and  
+            pelota.y + pelota.alto > self.y and  
             pelota.y < self.y + self.alto
         ):
             pelota.dir_x = -pelota.dir_x
@@ -135,6 +145,7 @@ class raqueta:
             pelota.dir_y*=1.1
             pelota.dir_x*=1.1
 
+    #Cambio de color de la raquetas
     def cambiar_color_raqueta(self, colorR):
         global raquetaB
         if colorR == "Naranja":
@@ -154,7 +165,7 @@ class raqueta:
         self.imagen = pygame.image.load(raquetaB).convert_alpha()
             
 
-
+#Inicio de juego
 def main():
     #Inicio y posición de raquetas
     pygame.init()
@@ -169,6 +180,7 @@ def main():
 
     dificultad_actual = {"velocidad": 5}
 
+    #Seleccionar la dificultad
     def set_difficulty(value, difficulty):
         if difficulty == "Fácil":
             dificultad_actual["velocidad"] = 5
@@ -179,9 +191,11 @@ def main():
         elif difficulty == "Muy difícil":
             dificultad_actual["velocidad"] = 18
 
+    #Cambio de color de la pelota desde el menú
     def set_color(value, color):
         pelota.cambiar_color(color)
 
+    #Cambio de color de la raqueta desde el menú
     def set_colorRaqueta(value, colorR):
         raqueta_1.cambiar_color_raqueta(colorR)
         raqueta_2.cambiar_color_raqueta(colorR)
@@ -225,6 +239,7 @@ def start_game(win, pelota, raqueta_1, raqueta_2, fuente, dificultad_actual):
         letrero = fuente.render(text, False, black)
         win.blit(letrero, (winHori / 2 - fuente.size(text)[0] / 2, 50))
 
+        #Control y movimiento de raqueta
         for event in pygame.event.get():
             if event.type == QUIT:
                 jugando = False
